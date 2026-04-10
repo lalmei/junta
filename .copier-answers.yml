@@ -1,0 +1,31 @@
+# Changes here will be overwritten by Copier.
+_src_path: /Users/lalmei/projects/repoman/src/repoman
+ci: github.com
+project_name: junta
+project_description: Python library with a Typer command-line interface
+author_fullname: Leandro G. Almeida
+author_email: leandro.g.almeida@gmail.com
+author_username: lalmei
+repository_provider: github
+repository_namespace: lalmei
+repository_name: junta
+copyright_holder: Leandro G. Almeida
+copyright_holder_email: leandro.g.almeida@gmail.com
+copyright_date: '2026'
+copyright_license: ISC
+python_package_distribution_name: junta
+python_package_import_name: junta
+python_package_command_line_name: junta
+python_distribution_name: junta
+container_registry: ''
+python_notebooks: false
+fastapi_enabled: false
+fastapi_docs_url: "/docs"
+fastapi_api_prefix: "/api"
+fastapi_debug: false
+include_health_endpoints: true
+aiohttp_timeout: 2
+aiohttp_pool_size: 100
+rag_enabled: false
+dataset_enabled: false
+docs_only: false
