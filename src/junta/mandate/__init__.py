@@ -1,0 +1,1 @@
+"""Mandate and condition models."""

@@ -25,3 +25,40 @@ Shared configuration is loaded through `Config()` in
 
 - `main_config.py` defines the common application settings.
 
+## Execution kernel (`Junta`)
+
+The **`Junta`** class in `src/junta/junta.py` is the top-level runtime: it registers **officers** (ordered),
+optional **doctrine** (retries, failure policy, max steps, **tracer**), and an
+optional **tribunal** for post-step review. A **mandate** plus optional **dossier**
+are wrapped in an **operation** (`convene`), then **`execute`** runs the loop until
+a terminal outcome, handoff, or limit.
+
+Rich and Typer stay in **`junta/cli/`**; the kernel has no CLI dependencies.
+
+```mermaid
+flowchart LR
+  subgraph kernel [Junta]
+    convene[convene]
+    loop[Run loop]
+    sel[Select officer]
+    retry[Retries]
+    tri[Tribunal]
+  end
+  convene --> loop
+  loop --> sel
+  sel --> retry
+  loop --> tri
+```
+
+Layout:
+
+- `src/junta/junta.py` — `Junta`
+- `src/junta/mandate/mandate.py` — `Mandate`, `Condition`
+- `src/junta/dossier/dossier.py` — `Dossier`
+- `src/junta/doctrine/doctrine.py` — `Doctrine`, `RetryPolicy`, `Tracer`
+- `src/junta/operation/operation.py` — `Operation`
+- `src/junta/operation/outcomes.py` — step and run results
+- `src/junta/cabinet/officer.py` — `Officer` protocol
+- `src/junta/tribunal/tribunal.py` — `Tribunal` protocol
+
+Public imports are re-exported from `junta` (see `src/junta/__init__.py`).
