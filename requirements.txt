@@ -1,0 +1,6 @@
+# Junta runtime dependencies (see pyproject.toml for pinned ranges)
+pydantic>=2.0
+anthropic
+openai
+httpx
+pydantic-settings

@@ -74,20 +74,15 @@ ignore = [
     "FBT001",  # Boolean positional (aiohttp API uses raise_for_status)
     "FBT002",  # Boolean default positional
 ]
-"src/junta/doctrine/doctrine.py" = [
-    "D102",  # Protocol / NoOpTracer stubs: one-line hooks
+"src/junta/**/*.py" = [
+    "TC001",  # First-party imports kept at runtime for Pydantic and clearer tracebacks
+    "TC003",  # Stdlib imports used in annotations alongside runtime use
 ]
 "src/junta/cabinet/officer.py" = [
-    "D102",  # Protocol member stubs
-    "TC001",  # Operation / outcomes needed at runtime for Protocol typing
-]
-"src/junta/operation/operation.py" = [
-    "TC001",  # Pydantic field types must be imported at runtime
+    "D102",  # execute_mandate body is long; public API documented on class
 ]
 "src/junta/junta.py" = [
-    "TC001",  # Runtime imports for Junta public API
-    "TC003",  # Iterable used at runtime for officers
-    "RET504",  # final= then return; finally needs bound name for tracer
+    "RET504",
 ]
 
 [lint.flake8-quotes]

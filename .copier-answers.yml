@@ -18,7 +18,7 @@ python_package_import_name: junta
 python_package_command_line_name: junta
 python_distribution_name: junta
 container_registry: ''
-python_notebooks: false
+python_notebooks: true
 fastapi_enabled: false
 fastapi_docs_url: "/docs"
 fastapi_api_prefix: "/api"

@@ -7,7 +7,7 @@ build-backend = "uv_build"
 
 [project]
 name = "junta"
-description = "Python library with a Typer command-line interface"
+description = "Junta: Python officer framework with operators, manifest, doctrine, and tribunal"
 authors = [{name = "Leandro G. Almeida", email = "leandro.g.almeida@gmail.com"}]
 license = "ISC"
 license-files = ["LICENSE"]
@@ -31,11 +31,15 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
+    "anthropic>=0.40.0",
     "catppuccin>=2.5.0",
+    "httpx>=0.28.0",
+    "openai>=1.0.0",
     "pydantic-settings>=2.12.0",
     "rich>=14.3.0",
     "pydantic>=2.12.0",
-    "typer>=0.17.3",]
+    "typer>=0.17.3",
+]
 
 [project.urls]
 Homepage = "https://lalmei.github.io/junta"
