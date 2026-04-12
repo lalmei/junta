@@ -1,1 +1,5 @@
-"""Doctrine: retries, failure policy, tracing."""
+"""Doctrine (policy) models."""
+
+from junta.doctrine.doctrine import Doctrine
+
+__all__ = ["Doctrine"]

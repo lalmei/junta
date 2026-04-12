@@ -5,7 +5,7 @@ from pathlib import Path
 
 from typer import Typer
 
-from junta.utils.logging import get_logger_console
+from junta.utils.logging import get_wiretap_console
 
 
 def _register_commands(app: Typer, path: Path | None = None) -> None:
@@ -14,7 +14,7 @@ def _register_commands(app: Typer, path: Path | None = None) -> None:
     Scans all subdirectories in the commands directory and registers any that have an 'app'
     attribute defined in their __init__.py file.
     """
-    logger, _ = get_logger_console()
+    log, _ = get_wiretap_console()
 
     # Get the cli directory path
     cli_dir = Path(__file__).parent / "commands" if path is None else path
@@ -28,7 +28,7 @@ def _register_commands(app: Typer, path: Path | None = None) -> None:
 
     # Import and register commands from each submodule
     for module_name in command_modules:
-        logger.debug(f"Importing submodule: {module_name}")
+        log.debug(f"Importing submodule: {module_name}")
 
         try:
             # Dynamically import the submodule (its __init__.py will be loaded)
@@ -36,7 +36,7 @@ def _register_commands(app: Typer, path: Path | None = None) -> None:
 
             # Check if the module has an 'app' attribute
             if not hasattr(module, "app"):
-                logger.debug(f"Submodule '{module_name}' does not have an 'app' attribute. Skipping.")
+                log.debug(f"Submodule '{module_name}' does not have an 'app' attribute. Skipping.")
 
                 continue
 
@@ -44,16 +44,16 @@ def _register_commands(app: Typer, path: Path | None = None) -> None:
             sub_command = module.app
 
             if module_name in registered_commands:
-                logger.warning(
+                log.warning(
                     f"Duplicate command name '{module_name}' found in submodule '{module_name}'. Skipping registration.",
                 )
                 continue
 
             app.add_typer(sub_command, name=module_name)
             registered_commands.add(module_name)
-            logger.debug(f"Registered command '{module_name}' from submodule '{module_name}'")
+            log.debug(f"Registered command '{module_name}' from submodule '{module_name}'")
 
         except ImportError as e:
-            logger.warning(f"Failed to import submodule '{module_name}': {e}. Skipping.")
+            log.warning(f"Failed to import submodule '{module_name}': {e}. Skipping.")
         except (AttributeError, TypeError, ValueError) as e:
-            logger.warning(f"Error processing submodule '{module_name}': {e}. Skipping.")
+            log.warning(f"Error processing submodule '{module_name}': {e}. Skipping.")

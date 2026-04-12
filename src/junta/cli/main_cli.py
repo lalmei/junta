@@ -13,8 +13,8 @@ from typer import Context, Exit, Option, Typer
 
 from junta._version import debug_info, version_info
 from junta.cli.register import _register_commands
-from junta.config import Config
-from junta.utils.logging import get_logger_console
+from junta.config import JuntaEnvSettings
+from junta.utils.logging import get_wiretap_console
 from junta.utils.theme.theme import set_theme
 
 
@@ -90,22 +90,22 @@ def main(
         help="check package version", callback=_version_callback)
 
     """
-    logger, _ = get_logger_console()
+    log, _ = get_wiretap_console()
 
-    config: Config | None = None
+    config: JuntaEnvSettings | None = None
     try:
-        config = Config()
+        config = JuntaEnvSettings()
         if verbose:
-            logger.setLevel(logging.DEBUG)
-            logger.info(Text("Setting verbose mode ON", style="orange"))
+            log.setLevel(logging.DEBUG)
+            log.info(Text("Setting verbose mode ON", style="orange"))
         else:
-            logger.setLevel(logging.INFO)
+            log.setLevel(logging.INFO)
 
-        logger.debug(config.model_dump())
-        logger.debug(Text("Configuration set", style="yellow"))
+        log.debug(config.model_dump())
+        log.debug(Text("Configuration set", style="yellow"))
     except ValidationError:
-        logger.exception("Unable to load configuration: ")
-        logger.exception("Obtained the following validating Errors loading configuration")
+        log.exception("Unable to load configuration: ")
+        log.exception("Obtained the following validating Errors loading configuration")
         config = None
 
     ctx.obj = {

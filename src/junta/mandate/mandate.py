@@ -1,35 +1,36 @@
-"""Mandate and terminal condition models."""
+"""Mandate: unit of work issued to an officer."""
 
 from __future__ import annotations
 
-from typing import Annotated, Any, Literal, Self
+from enum import Enum
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator
+
+from junta.doctrine.doctrine import Doctrine
 
 
-class Condition(BaseModel):
-    """A single measurable end-state target."""
+class MandateStatus(str, Enum):
+    """Lifecycle state of a mandate."""
 
-    metric: str
-    target: Any
+    PENDING = "pending"
+    ACTIVE = "active"
+    COMPLETE = "complete"
+    BREACHED = "breached"
 
 
 class Mandate(BaseModel):
-    """Intent and constraints for a run."""
+    """A mandate is the briefing and doctrine an officer must satisfy."""
 
-    directive: str
-    briefing: dict[str, Any] = Field(default_factory=dict)
-    doctrine_refs: list[str] = Field(
-        default_factory=list,
-        description="References to doctrine tags or rule ids (distinct from junta.doctrine.doctrine.Doctrine instance).",
-    )
-    end_state: list[Condition] = Field(default_factory=list)
-    urgency: Literal["routine", "priority", "critical"] = "routine"
-    contingency: Annotated[int, Field(ge=0)] = 0
+    id: str
+    briefing: str
+    status: MandateStatus = MandateStatus.PENDING
+    doctrine: Doctrine = Field(default_factory=Doctrine)
+    result: str | None = None
 
-    @model_validator(mode="after")
-    def _validate_non_empty_directive(self) -> Self:
-        if not self.directive.strip():
-            msg = "directive must be non-empty"
+    @field_validator("briefing")
+    @classmethod
+    def _non_empty_briefing(cls, v: str) -> str:
+        if not v.strip():
+            msg = "briefing must be non-empty"
             raise ValueError(msg)
-        return self
+        return v
