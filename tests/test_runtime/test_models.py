@@ -4,35 +4,28 @@ from __future__ import annotations
 
 import pytest
 
-from junta import Doctrine, Dossier, FailurePolicy, Mandate, RetryPolicy
+from junta import Dispatch, DispatchRole, Doctrine, Dossier, Mandate
 
 
-def test_dossier_from_briefing_copies_facts() -> None:
-    briefing = {"company": "Acme", "region": "EMEA"}
-    d = Dossier.from_briefing(briefing)
-    assert d.facts == briefing
-    briefing["company"] = "Other"
-    assert d.facts["company"] == "Acme"
+def test_dossier_add_dispatch() -> None:
+    d = Dossier()
+    d.add(Dispatch(role=DispatchRole.USER, content="briefing text"))
+    assert len(d.dispatches) == 1
+    assert d.dispatches[0].content == "briefing text"
 
 
 def test_mandate_minimal() -> None:
-    m = Mandate(directive="Go")
-    assert m.briefing == {}
-    assert m.doctrine_refs == []
+    m = Mandate(id="m1", briefing="Go")
+    assert m.briefing == "Go"
 
 
-def test_mandate_directive_non_empty() -> None:
-    with pytest.raises(ValueError, match="directive"):
-        Mandate(directive="   ")
+def test_mandate_briefing_non_empty() -> None:
+    with pytest.raises(ValueError, match="briefing"):
+        Mandate(id="m2", briefing="   ")
 
 
 def test_doctrine_defaults() -> None:
     d = Doctrine()
-    assert d.max_steps == 100
-    assert d.failure_policy is FailurePolicy.ABORT
-    assert d.retry_policy == RetryPolicy()
-
-
-def test_retry_policy_backoff() -> None:
-    r = RetryPolicy(max_attempts=3, backoff_base_seconds=0.01)
-    assert r.max_attempts == 3
+    assert d.max_iterations == 10
+    assert d.allow_parallel is False
+    assert d.max_tokens == 4096

@@ -1,4 +1,4 @@
-"""Tests for logging utilities."""
+"""Tests for CLI wiretap-style logging helpers."""
 
 import os
 import tempfile
@@ -12,81 +12,82 @@ from rich.console import Console
 
 from junta.utils.logging import (
     _attach_rotating_file_handler,
-    _set_up_logger,
+    _configure_rich_log,
     get_logger_console,
+    get_wiretap_console,
 )
 
 
-class TestSetUpLogger:
-    """Test logger setup functionality."""
+class TestConfigureRichLog:
+    """Test Rich log setup."""
 
-    def test_set_up_logger_basic(self) -> None:
-        """Test basic logger setup without console."""
+    def test_configure_rich_log_basic(self) -> None:
+        """Basic setup without custom console."""
         _log_level_env = "_JUNTA_LOG_LEVEL"
         original_level = os.environ.get(_log_level_env)
         try:
             if _log_level_env in os.environ:
                 del os.environ[_log_level_env]
 
-            logger = _set_up_logger("test_logger")
+            log = _configure_rich_log("test_log")
 
-            assert isinstance(logger, Logger)
-            assert logger.name == "test_logger"
-            assert logger.level == DEBUG
-            rich_handlers = [h for h in logger.handlers if h.get_name() == "rich"]
+            assert isinstance(log, Logger)
+            assert log.name == "test_log"
+            assert log.level == DEBUG
+            rich_handlers = [h for h in log.handlers if h.get_name() == "rich"]
             assert len(rich_handlers) == 1
         finally:
             if original_level is not None:
                 os.environ[_log_level_env] = original_level
 
-    def test_set_up_logger_with_custom_console(self) -> None:
-        """Test logger setup with custom console."""
+    def test_configure_rich_log_with_custom_console(self) -> None:
+        """Setup with custom console."""
         custom_console = Console()
-        logger = _set_up_logger("test_logger", console=custom_console)
+        log = _configure_rich_log("test_log", console=custom_console)
 
-        assert isinstance(logger, Logger)
-        assert logger.name == "test_logger"
-        rich_handlers = [h for h in logger.handlers if h.get_name() == "rich"]
+        assert isinstance(log, Logger)
+        assert log.name == "test_log"
+        rich_handlers = [h for h in log.handlers if h.get_name() == "rich"]
         assert len(rich_handlers) == 1
 
-    def test_set_up_logger_with_custom_log_level(self) -> None:
-        """Test logger setup with custom log level."""
+    def test_configure_rich_log_with_custom_log_level(self) -> None:
+        """Custom log level."""
         _log_level_env = "_JUNTA_LOG_LEVEL"
         original_level = os.environ.get(_log_level_env)
         try:
             if _log_level_env in os.environ:
                 del os.environ[_log_level_env]
 
-            logger = _set_up_logger("test_logger", log_level=INFO)
+            log = _configure_rich_log("test_log", log_level=INFO)
 
-            assert isinstance(logger, Logger)
-            assert logger.level == INFO
+            assert isinstance(log, Logger)
+            assert log.level == INFO
         finally:
             if original_level is not None:
                 os.environ[_log_level_env] = original_level
 
-    def test_set_up_logger_environment_log_level(self) -> None:
-        """Test that environment variable affects log level."""
+    def test_configure_rich_log_environment_log_level(self) -> None:
+        """Environment variable affects log level."""
         _log_level_env = "_JUNTA_LOG_LEVEL"
         original_level = os.environ.get(_log_level_env)
 
         try:
             os.environ[_log_level_env] = str(INFO)
-            logger = _set_up_logger("test_logger")
-            assert logger.level == INFO
+            log = _configure_rich_log("test_log")
+            assert log.level == INFO
         finally:
             if original_level is not None:
                 os.environ[_log_level_env] = original_level
             else:
                 os.environ.pop(_log_level_env, None)
 
-    def test_set_up_logger_log_file_path_creation(self) -> None:
-        """Test that log file path creation is handled."""
+    def test_configure_rich_log_log_file_path_creation(self) -> None:
+        """Log file path creation."""
         with tempfile.TemporaryDirectory() as temp_dir:
             log_path = Path(temp_dir) / "logs"
 
-            _set_up_logger(
-                "fresh_test_logger",
+            _configure_rich_log(
+                "fresh_test_log",
                 use_rotating_file_handler=True,
                 log_file_base_path=log_path,
             )
@@ -96,90 +97,95 @@ class TestSetUpLogger:
 
 
 class TestAttachRotatingFileHandler:
-    """Test rotating file handler attachment."""
+    """Rotating file handler attachment."""
 
     def test_attach_rotating_file_handler_basic(self) -> None:
-        """Test basic rotating file handler attachment."""
-        logger = Logger("test_logger")
+        """Basic rotating file handler attachment."""
+        log = Logger("test_log")
 
         with tempfile.TemporaryDirectory() as temp_dir:
             log_file = Path(temp_dir) / "test.log"
 
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", UserWarning)
-                result_logger = _attach_rotating_file_handler(logger, str(log_file))
+                result_log = _attach_rotating_file_handler(log, str(log_file))
 
-            assert result_logger is logger
+            assert result_log is log
 
-            rotating_handlers = [h for h in logger.handlers if h.get_name() == "rotating_file_handler"]
+            rotating_handlers = [h for h in log.handlers if h.get_name() == "rotating_file_handler"]
             assert len(rotating_handlers) == 1
 
             for handler in rotating_handlers:
                 handler.close()
-                logger.removeHandler(handler)
+                log.removeHandler(handler)
 
 
-class TestGetLoggerConsole:
-    """Test get_logger_console functionality."""
+class TestGetWiretapConsole:
+    """get_wiretap_console (alias get_logger_console)."""
 
-    def test_get_logger_console_basic(self) -> None:
-        """Test basic get_logger_console functionality."""
-        logger, console = get_logger_console("test_logger")
+    def test_get_wiretap_console_basic(self) -> None:
+        """Basic get_wiretap_console."""
+        log, console = get_wiretap_console("test_log")
 
-        assert isinstance(logger, Logger)
+        assert isinstance(log, Logger)
         assert isinstance(console, Console)
-        assert logger.name == "test_logger"
+        assert log.name == "test_log"
 
-    def test_get_logger_console_default_name(self) -> None:
-        """Test get_logger_console with default name."""
-        logger, console = get_logger_console()
+    def test_get_wiretap_console_default_name(self) -> None:
+        """Default name junta."""
+        log, console = get_wiretap_console()
 
-        assert isinstance(logger, Logger)
+        assert isinstance(log, Logger)
         assert isinstance(console, Console)
-        assert logger.name == "junta"
+        assert log.name == "junta"
 
-    def test_get_logger_console_rich_handler_console(self) -> None:
-        """Test that console from rich handler is used."""
-        logger, console = get_logger_console("test_logger")
+    def test_get_logger_console_alias(self) -> None:
+        """Backward-compatible alias."""
+        log, _console = get_logger_console("alias_log")
+        assert log.name == "alias_log"
 
-        assert isinstance(logger, Logger)
+    def test_get_wiretap_console_rich_handler_console(self) -> None:
+        """Console from Rich handler."""
+        log, console = get_wiretap_console("test_log")
+
+        assert isinstance(log, Logger)
         assert isinstance(console, Console)
 
-        rich_handlers = [h for h in logger.handlers if h.get_name() == "rich"]
+        rich_handlers = [h for h in log.handlers if h.get_name() == "rich"]
         assert len(rich_handlers) == 1
         assert hasattr(rich_handlers[0], "console")
 
 
 class TestLoggingErrorHandling:
-    """Test error handling in logging utilities."""
+    """Error handling."""
 
-    def test_set_up_logger_with_invalid_log_level(self) -> None:
-        """Test logger setup with invalid log level values."""
-        logger = _set_up_logger("test_logger", log_level=None)
-        assert isinstance(logger, Logger)
+    def test_configure_rich_log_with_invalid_log_level(self) -> None:
+        """Invalid log level values fall back."""
+        log = _configure_rich_log("test_log", log_level=None)
+        assert isinstance(log, Logger)
 
-        logger = _set_up_logger("test_logger", log_level="INVALID_LEVEL")
-        assert isinstance(logger, Logger)
+        log = _configure_rich_log("test_log", log_level="INVALID_LEVEL")
+        assert isinstance(log, Logger)
 
     def test_attach_rotating_file_handler_with_invalid_path(self) -> None:
-        """Test rotating file handler with invalid file paths."""
-        logger = Logger("test_logger")
+        """Invalid paths for rotating handler."""
+        log = Logger("test_log")
 
         with pytest.raises(TypeError):
-            _attach_rotating_file_handler(logger, None)
+            _attach_rotating_file_handler(log, None)
 
         with pytest.raises(TypeError):
-            _attach_rotating_file_handler(logger, 123)
+            _attach_rotating_file_handler(log, 123)
 
     def test_logging_with_malformed_environment_variables(self) -> None:
-        """Test logging behavior with malformed environment variables."""
+        """Malformed _JUNTA_LOG_LEVEL."""
         _log_level_env = "_JUNTA_LOG_LEVEL"
         original_level = os.environ.get(_log_level_env)
 
         try:
             os.environ[_log_level_env] = "not_a_number"
             with pytest.raises(ValueError, match=r"invalid literal|invalid|could not convert"):
-                _set_up_logger("test_logger")
+                _configure_rich_log("test_log")
         finally:
             if original_level is not None:
                 os.environ[_log_level_env] = original_level
@@ -187,17 +193,17 @@ class TestLoggingErrorHandling:
                 os.environ.pop(_log_level_env, None)
 
 
-def test_set_up_logger_console_creation_not_in_pytest() -> None:
-    """Test that console is created with theme when not in pytest."""
+def test_configure_rich_log_console_creation_not_in_pytest() -> None:
+    """Console uses theme when not in pytest."""
     with patch("junta.utils.logging._is_running_in_pytest", return_value=False):
-        logger = _set_up_logger("test_logger_not_pytest")
+        log = _configure_rich_log("test_log_not_pytest")
 
-        assert logger is not None
-        assert logger.name == "test_logger_not_pytest"
+        assert log is not None
+        assert log.name == "test_log_not_pytest"
 
 
-def test_get_logger_console_invalid_log_level() -> None:
-    """Test get_logger_console with invalid log_level falls back to INFO."""
-    logger, _ = get_logger_console("test_invalid_level", log_level="INVALID")
-    assert isinstance(logger, Logger)
-    assert logger.level == INFO
+def test_get_wiretap_console_invalid_log_level() -> None:
+    """Invalid log_level falls back to INFO."""
+    log, _ = get_wiretap_console("test_invalid_level", log_level="INVALID")
+    assert isinstance(log, Logger)
+    assert log.level == INFO

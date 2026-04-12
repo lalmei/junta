@@ -64,7 +64,7 @@ def test_main_with_validation_error(cli_runner: CliRunner, cli_app: typer.Typer)
         _RequiredModel()
 
     with patch(
-        "junta.cli.main_cli.Config",
+        "junta.cli.main_cli.JuntaEnvSettings",
         side_effect=_raise_validation_error,
     ):
         result = cli_runner.invoke(cli_app, ["noop"])
