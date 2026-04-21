@@ -1,5 +1,4 @@
 # Changes here will be overwritten by Copier.
-_src_path: /Users/lalmei/projects/repoman/src/repoman
 ci: github.com
 project_name: junta
 project_description: Python library with a Typer command-line interface
