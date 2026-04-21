@@ -20,7 +20,7 @@ Junta is a Python framework for building **officers** (LLM-driven actors) with s
 | Conversation thread | Dossier |
 | Callable unit | Capability |
 | Registry | Manifest |
-| LLM backend | Operator |
+| LLM backend | Gringos |
 | Policy | Doctrine |
 | Memory / context | Intelligence |
 | Prompt text assembly | Briefing |
